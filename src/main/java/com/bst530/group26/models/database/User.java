@@ -24,8 +24,6 @@ public class User {
     @Column(name="description")
     private String description;
   
-    @OneToMany(mappedBy = "user")
-    private List<Point> points;
     
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
