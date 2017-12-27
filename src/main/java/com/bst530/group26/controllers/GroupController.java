@@ -1,4 +1,5 @@
-package com.bst530.group26.controller;
+package com.bst530.group26.controllers;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -6,8 +7,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.bst530.group26.models.database.*;
-import com.bst530.group26.repository.GroupRepository;
+import com.bst530.group26.model.Group;
+import com.bst530.group26.model.GroupMember;
+import com.bst530.group26.repositories.GroupMemberRepository;
+import com.bst530.group26.repositories.GroupRepository;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,6 +22,8 @@ import java.util.List;
 public class GroupController {
     @Autowired
     private GroupRepository groupRepository;
+    @Autowired
+    private GroupMemberRepository groupMemberRepository;
     
     // CHANGE@171030: no additional mapping needed as this is the root of the 'groups' end-point
     // TO-DO: this method should not deliver nested collection (members)
@@ -42,5 +47,11 @@ public class GroupController {
         return groupRepository.findOne(groupID);
     }
 
-  
+    // CHANGE@171030
+    // TO-DO: this method should not exist since its purpose can be simplified to get one member (because you already have the user identifier...)
+    @RequestMapping("/{groupID}/member/{userID}")
+    @ResponseBody
+    public GroupMember getGroupMember(@PathVariable("groupID") long groupID, @PathVariable("userID") long userID){
+        return groupMemberRepository.findOneByUserIdAndGroupId(userID, groupID);
+    }
 }

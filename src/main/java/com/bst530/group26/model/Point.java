@@ -1,4 +1,4 @@
-package com.bst530.group26.models.database;
+package com.bst530.group26.model;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -6,35 +6,36 @@ import java.time.Instant;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "points")
+@Table(name = "point")
 public class Point {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(name="id")
     private long id;
-    
-    @Column(name="latitude")
+
+    @Column(name="group_member_id")
+    private long groupMemberId;
+
+    @Column(name="group_id")
+    private long groupId;
+
     private double latitude;
-    
-    @Column(name="longitude")
+
     private double longitude;
 
-    @Column(name="dateTime")
     private Timestamp dateTime;
 
-    @ManyToOne
-    @JoinColumn(name="user_id")
-    private User user;
-    
+//Construction    
     public Point(){}
 
-    public Point(User user, double latitude, double longitude){ 
-    	this.user = user;
+    public Point(long groupID, long groupMemberID, double latitude, double longitude){
+        this.groupId = groupID;
+        this.groupMemberId = groupMemberID;
         this.latitude = latitude;
         this.longitude = longitude;
         this.dateTime = Timestamp.from(Instant.now());
     }
-//id
+
+//getter and setter 
     public long getID(){
         return this.id;
     }
@@ -42,7 +43,7 @@ public class Point {
     public void setID(long id){
         this.id = id;
     }
-//latitude
+
     public double getLatitude(){
         return this.latitude;
     }
@@ -50,7 +51,7 @@ public class Point {
     public void setLatitude(double latitude){
         this.latitude = latitude;
     }
-//Longitude
+
     public double getLongitude(){
         return this.longitude;
     }
@@ -58,23 +59,25 @@ public class Point {
     public void setLongitude(double longitude){
         this.longitude = longitude;
     }
-//dataTime
-	public Timestamp getDateTime() {
-		return dateTime;
-	}
 
-	
-//user	
-public User getUser() {
-		return user;
-	}
+    public long getGroupID(){
+        return this.groupId;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public void setGroupID(long groupID){
+        this.groupId = groupID;
+    }
 
-	//calculate the distance between two point 
-	public double distanceFrom(Point point) {
+    public long getGroupMemberID(){
+        return this.groupMemberId;
+    }
+
+    public void setGroupMemberID(long groupMemberID){
+        this.groupMemberId = groupMemberID;
+    }
+
+    
+    public double distanceFrom(Point point) {
         double lat1 = (float)this.getLatitude();
         double lng1 = (float)this.getLongitude();
 

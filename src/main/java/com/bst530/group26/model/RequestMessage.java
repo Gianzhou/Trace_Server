@@ -1,4 +1,4 @@
-package com.bst530.group26.models.messages;
+package com.bst530.group26.model;;
 
 public class RequestMessage extends Message {
     public RequestMessage() {

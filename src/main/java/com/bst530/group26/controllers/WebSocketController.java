@@ -1,4 +1,4 @@
-package com.bst530.group26.controller;
+package com.bst530.group26.controllers;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,11 +9,15 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import com.bst530.group26.models.database.*;
-import com.bst530.group26.models.messages.*;
-import com.bst530.group26.repository.*;
+import com.bst530.group26.model.Group;
+import com.bst530.group26.model.GroupMember;
+import com.bst530.group26.model.Point;
+import com.bst530.group26.model.RequestMessage;
+import com.bst530.group26.model.ResponseMessage;
+import com.bst530.group26.repositories.GroupMemberRepository;
+import com.bst530.group26.repositories.GroupRepository;
+import com.bst530.group26.repositories.PointRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,7 +28,7 @@ public class WebSocketController {
     @Autowired
     private PointRepository pointRepository;
     @Autowired
-    private UserRepository userRepository;
+    private GroupMemberRepository groupMemberRepository;
     @Autowired
     private GroupRepository groupRepository;
 
@@ -34,10 +38,6 @@ public class WebSocketController {
         return new String("Welcome");
     }
 
-    /*
-     * the role to mark current location is that the distance is longer than 100
-     * the point would save and the procedure would execute through Repository
-     */
     @MessageMapping("/{groupID}/changeLocation")
     public void changeLocation(@Payload RequestMessage requestMessage, @DestinationVariable long groupID){
         long user_id = requestMessage.getSenderID();
@@ -46,13 +46,11 @@ public class WebSocketController {
         double longitude = requestMessage.getLongitude();
         boolean insert = false;
 
-        
-        
-// add the point to the user
-        List<Point> points = new ArrayList<Point>(pointRepository.findAllByUserId(user_id));
-        User user = userRepository.findOne(user_id);
-        Point newPoint = new Point(user, latitude, longitude);
-       
+        GroupMember member = groupMemberRepository.findOne(user_id);
+        Group group = groupRepository.findOne(group_id);
+
+        Point newPoint = new Point(group.getID(), member.getId(), latitude, longitude);
+        List<Point> points = pointRepository.findAllByGroupIdAndGroupMemberId(group_id, user_id);
         if(points.size() > 0){
             //Get distance between two points
             Point lastPoint = points.get(points.size() - 1);
@@ -60,13 +58,11 @@ public class WebSocketController {
             //meters
             double distance = newPoint.distanceFrom(lastPoint);
             if(distance >= 100){
-             
-                 pointRepository.save(newPoint);
+                pointRepository.save(newPoint);
                 insert = true;
             }
         }else{
-        	 
-             pointRepository.save(newPoint);
+            pointRepository.save(newPoint);
             insert = true;
         }
         ResponseMessage responseMessage = new ResponseMessage(user_id, group_id, latitude, longitude, insert);
